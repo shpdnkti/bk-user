@@ -1,21 +1,15 @@
-FROM python:3.6.14-slim-bullseye
+FROM mirrors.tencent.com/blueking/python:3.6.14-ts3
 USER root
-
-RUN rm /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian bullseye main" >> /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian-security bullseye-security main" >> /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian bullseye-updates main" >> /etc/apt/sources.list
-
-RUN mkdir ~/.pip &&  printf '[global]\nindex-url = https://mirrors.tencent.com/pypi/simple/' > ~/.pip/pip.conf
-
-RUN apt-get update && apt-get install -y gcc gettext
 
 ENV LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 
-RUN pip install --upgrade pip setuptools
-RUN pip install poetry==1.1.13
-RUN poetry config repositories.pypi https://mirrors.tencent.com/pypi/simple/
+RUN mkdir -p ~/.pip && \
+    printf '[global]\nindex-url = https://mirrors.tencent.com/pypi/simple/' > ~/.pip/pip.conf && \
+    dnf install -y gcc gcc-c++ gettext && \
+    pip3 install --upgrade pip && \
+    pip3 install poetry==1.1.13 && \
+    poetry config repositories.pypi https://mirrors.tencent.com/pypi/simple/
 
 WORKDIR /app
 COPY src/api/pyproject.toml /app

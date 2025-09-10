@@ -1,25 +1,17 @@
-FROM python:3.6.14-slim-bullseye
+FROM mirrors.tencent.com/blueking/python:3.6.14-ts3
 USER root
-
-RUN rm /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian bullseye main" >> /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian-security bullseye-security main" >> /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian bullseye-updates main" >> /etc/apt/sources.list
-
-RUN mkdir ~/.pip &&  printf '[global]\nindex-url = https://mirrors.tencent.com/pypi/simple/' > ~/.pip/pip.conf
-
-RUN apt-get update && apt-get install -y gcc gettext
 
 ENV LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 
-RUN pip install --upgrade pip setuptools
-RUN pip install poetry==1.1.13
-RUN poetry config repositories.pypi https://mirrors.tencent.com/pypi/simple/
-
-# for saml 2.0 custom login
-RUN apt-get install -y pkg-config libxml2-dev libxmlsec1-dev libxmlsec1-openssl
-RUN pip install python3-saml==1.14.0 xmlsec==1.3.13
+RUN mkdir -p ~/.pip && \
+    printf '[global]\nindex-url = https://mirrors.tencent.com/pypi/simple/' > ~/.pip/pip.conf && \
+    dnf install -y gcc gcc-c++ gettext && \
+    pip3 install --upgrade pip && \
+    pip3 install poetry==1.1.13 && \
+    poetry config repositories.pypi https://mirrors.tencent.com/pypi/simple/ && \
+    dnf install -y libtool-ltdl-devel xmlsec1-devel xmlsec1-openssl-devel && \
+    pip3 install python3-saml==1.14.0 xmlsec==1.3.13
 
 WORKDIR /app
 COPY src/login/pyproject.toml /app

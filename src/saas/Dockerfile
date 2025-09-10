@@ -8,26 +8,20 @@ WORKDIR /
 RUN npm i
 RUN npm rebuild node-sass --force && npm run build
 
-FROM python:3.6.14-slim-bullseye as SaaS
+FROM mirrors.tencent.com/blueking/python:3.6.14-ts3 as SaaS
 USER root
-
-RUN rm /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian bullseye main" >> /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian-security bullseye-security main" >> /etc/apt/sources.list && \
-    echo "deb https://mirrors.tencent.com/debian bullseye-updates main" >> /etc/apt/sources.list
-
-RUN mkdir ~/.pip &&  printf '[global]\nindex-url = https://mirrors.tencent.com/pypi/simple/' > ~/.pip/pip.conf
-
-RUN apt-get update && apt-get install -y gcc gettext
 
 ENV LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
+    
+RUN mkdir -p ~/.pip && \
+    printf '[global]\nindex-url = https://mirrors.tencent.com/pypi/simple/' > ~/.pip/pip.conf && \
+    dnf install -y gcc gcc-c++ gettext && \
+    pip3 install --upgrade pip && \
+    pip3 install poetry==1.1.13 && \
+    poetry config repositories.pypi https://mirrors.tencent.com/pypi/simple/
 
 WORKDIR /app
-RUN pip install --upgrade pip setuptools
-RUN pip install poetry==1.1.13
-RUN poetry config repositories.pypi https://mirrors.tencent.com/pypi/simple/
-
 COPY src/saas/pyproject.toml /app
 COPY src/saas/poetry.lock /app
 RUN poetry config virtualenvs.create false && poetry install --no-dev
