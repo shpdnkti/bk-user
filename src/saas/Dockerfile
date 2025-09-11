@@ -17,8 +17,8 @@ ENV LC_ALL=C.UTF-8 \
 RUN mkdir -p ~/.pip && \
     printf '[global]\nindex-url = https://mirrors.tencent.com/pypi/simple/' > ~/.pip/pip.conf && \
     dnf install -y gcc gcc-c++ gettext && \
-    pip3 install --upgrade pip && \
-    pip3 install poetry==1.1.13 && \
+    pip install --upgrade pip && \
+    pip install poetry==1.1.13 && \
     poetry config repositories.pypi https://mirrors.tencent.com/pypi/simple/
 
 WORKDIR /app
